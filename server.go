@@ -82,7 +82,7 @@ func Server() http.Handler {
 			}
 		}
 
-		json.NewEncoder(w).Encode(results)
+		json.NewEncoder(w).Encode(out)
 	})
 
 	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
