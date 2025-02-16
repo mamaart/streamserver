@@ -12,8 +12,8 @@ import (
 )
 
 type Video struct {
-	Title string   `json:"title"`
-	URL   *url.URL `json:"url"`
+	Title string `json:"title"`
+	URL   string `json:"url"`
 }
 
 func Server() http.Handler {
@@ -48,7 +48,7 @@ func Server() http.Handler {
 			u.RawQuery = url.Values{"v": []string{results[i].VideoID}}.Encode()
 			out[i] = Video{
 				Title: results[i].Title,
-				URL:   u,
+				URL:   u.String(),
 			}
 		}
 
@@ -78,7 +78,7 @@ func Server() http.Handler {
 			}
 			out[i] = Video{
 				Title: results[i].Title,
-				URL:   u,
+				URL:   u.String(),
 			}
 		}
 
