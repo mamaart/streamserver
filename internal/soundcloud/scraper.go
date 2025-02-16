@@ -42,11 +42,12 @@ func (s *soundcloud) Search(query string) (out []Video, _ error) {
 	}
 
 	for _, e := range result.Collection {
-		fmt.Println(e.User.Username, e.Title, e.MonetizationModel)
-		out = append(out, Video{
-			Title: fmt.Sprintf("%s - %s", e.User.Username, e.Title),
-			Url:   e.PermalinkURL,
-		})
+		if e.MonetizationModel != "SUB_HIGH_TIER" {
+			out = append(out, Video{
+				Title: fmt.Sprintf("%s - %s", e.User.Username, e.Title),
+				Url:   e.PermalinkURL,
+			})
+		}
 	}
 
 	return out, nil
