@@ -5,10 +5,16 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
+	"net/url"
 	"streamserver/internal/download"
 	"streamserver/internal/google"
 	"streamserver/internal/soundcloud"
 )
+
+type Video struct {
+	Title string   `json:"title"`
+	URL   *url.URL `json:"url"`
+}
 
 func Server() http.Handler {
 	mux := http.NewServeMux()
@@ -32,7 +38,21 @@ func Server() http.Handler {
 			return
 		}
 
-		json.NewEncoder(w).Encode(results)
+		out := make([]Video, len(results))
+		for i := range results {
+			u, err := url.Parse("https://youtube.com/watch")
+			if err != nil {
+				http.Error(w, err.Error(), http.StatusInternalServerError)
+				return
+			}
+			u.RawQuery = url.Values{"v": []string{results[i].VideoID}}.Encode()
+			out[i] = Video{
+				Title: results[i].Title,
+				URL:   u,
+			}
+		}
+
+		json.NewEncoder(w).Encode(out)
 	})
 
 	mux.HandleFunc("/sc/{query}", func(w http.ResponseWriter, r *http.Request) {
@@ -47,6 +67,19 @@ func Server() http.Handler {
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
+		}
+
+		out := make([]Video, len(results))
+		for i := range results {
+			u, err := url.Parse(results[i].Url)
+			if err != nil {
+				http.Error(w, err.Error(), http.StatusInternalServerError)
+				return
+			}
+			out[i] = Video{
+				Title: results[i].Title,
+				URL:   u,
+			}
 		}
 
 		json.NewEncoder(w).Encode(results)
